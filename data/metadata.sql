@@ -112,6 +112,7 @@ CREATE TABLE public.metadata
   maintenance_updatefreq character varying(50),
   maintenance_note character varying(256),
   user_note character varying(256),
+  approval character varying(50),
   status character varying(50),
   CONSTRAINT id_metadata_pkey PRIMARY KEY (id_metadata)
 )

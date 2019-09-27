@@ -1,5 +1,5 @@
 # initiate global variable
-appsTitle <- 'Satu Peta'
+appsTitle <- 'KIS Satu Peta'
 appsMenu <- data.frame(
   menuItem = c('Metadata', 'Contact', 'Spatial Representation Info', 'Reference System Info', 'Identification Info',
                'Distribution Info', 'Transfer Options', 'Metadata Maintenace', 'Metadata Constrains'),
