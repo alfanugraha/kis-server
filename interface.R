@@ -12,12 +12,15 @@ navbarPage(title = appsTitle, theme = shinytheme("flatly"), id="compilationApps"
     fluidRow(
       column(6, panel_div("success", panel_title="Last Login", Sys.time())),
       column(6, panel_div("info", panel_title="Last Activity", Sys.Date()))
-    )
+    ),
+    uiOutput("logoutbtn")
   ),
   ###Compilation####
   navbarMenu("Kompilasi",
     ###Data####
     tabPanel("Otorisasi Data", value="tabData", icon = icon("database"),
+      actionButton("refreshButton", "Refresh"),
+      hr(),
       dataTableOutput("app_data")
     ),
     tabPanel("Kompilasi Data", value="tabData", icon = icon("database"),

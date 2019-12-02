@@ -5,6 +5,7 @@ library(shinythemes)
 library(shinyLP)
 library(shinyBS)
 library(shinyjs)
+library(sodium)
 library(slickR)
 library(splitstackshape)
 library(XML)
@@ -25,10 +26,79 @@ source('variables.R')
 source('kugi5.R')
 
 ###*Setting Up Interface####
-ui <- source('interface.R')
+# loginpage <- source('login.R')
+homepage <- htmlTemplate('www/index.html')
+shinyloginpage <- navbarPage(title = appsTitle, theme = shinytheme("flatly"), id="loginApps",
+  ###Login####
+  tabPanel("Home", value="tabHome",
+    # slickROutput("slideshow", width="100%"),
+    # hr(),
+    jumbotron("KIS SATU PETA", "Mempermudah proses penatagunaan lahan. Menghindari konflik penatagunaan lahan. Mempercepat proses perizinan penatagunaan lahan.", button=FALSE),
+    div(id = "loginpage", style = "width: 500px; max-width: 100%; margin: 0 auto; padding: 20px;",
+    textInput("userName", placeholder="Username", label = tagList(icon("user"), "Username")),
+    passwordInput("passwd", placeholder="Password", label = tagList(icon("unlock-alt"), "Password")),
+    # actionLink("tes", label = "tes", value="tes"),
+    actionButton("login", "Masuk"))
+  )
+)
+
+credentials = data.frame(
+  username_id = c("admin"),
+  passod   = sapply(c("admin"),password_store),
+  permission  = c("basic"), 
+  stringsAsFactors = F
+)
+ui <- uiOutput("interface")
 
 ###*Preparing Server#### 
 server <- function(input, output, session) {
+  login = FALSE
+  USER <- reactiveValues(login = login, home = "gohome")
+  
+  observeEvent(input$page_login, {
+    if(input$page_login=="gotologin"){
+      USER$home = "gohome"
+      print(input$page_login)
+    } else {
+      return
+    }
+  })
+  
+  observe({ 
+    if(USER$login == FALSE) {
+      if(!is.null(input$login)) {
+        if(input$login > 0) {
+          Username <- isolate(input$userName)
+          Password <- isolate(input$passwd)
+          if(length(which(credentials$username_id==Username))==1) { 
+            pasmatch  <- credentials["passod"][which(credentials$username_id==Username),]
+            pasverify <- password_verify(pasmatch, Password)
+            if(pasverify) {
+              USER$login <- TRUE
+            } else {
+              shinyjs::toggle(id = "nomatch", anim = TRUE, time = 1, animType = "fade")
+              shinyjs::delay(3000, shinyjs::toggle(id = "nomatch", anim = TRUE, time = 1, animType = "fade"))
+            }
+          } else {
+            shinyjs::toggle(id = "nomatch", anim = TRUE, time = 1, animType = "fade")
+            shinyjs::delay(3000, shinyjs::toggle(id = "nomatch", anim = TRUE, time = 1, animType = "fade"))
+          }
+        } 
+      }
+    }    
+  })
+  
+  output$interface <- renderUI({
+    if(USER$login == TRUE ) {
+      source('interface.R')
+    # } else if(USER$home=="gohome"){  
+    #   print(input$page_login)
+    #   homepage
+    } else {
+      shinyloginpage
+    }
+  })
+  
   ###*Connect to PostgreSQL Database####
   # driver <- PostgreSQL(max.con = 100)
   driver <- dbDriver("PostgreSQL")
@@ -42,9 +112,9 @@ server <- function(input, output, session) {
   pg_md_db<-"metadata"
   pg_kugi_db<-"kugi5"
   pg_comp_db<-"compilation"
-  # pg_igd_db<-"IGD"
-  # pg_int_db<-"integration"
-  # pg_sync_db<-"sync"
+  pg_igd_db<-"IGD"
+  pg_int_db<-"integration"
+  pg_sync_db<-"sync"
   # pg_onemap_db<-"onemap"
   
   connectDB <- function(pg_db){
@@ -77,13 +147,13 @@ server <- function(input, output, session) {
     return(count_compilation)
   }
   
-  # countIntTbl <- function(){
-  #   integration<-connectDB(pg_int_db)
-  #   count_integration <- length(dbListTables(integration))-3
-  #   disconnectDB("integration", integration)
-  #   
-  #   return(count_integration)
-  # }
+  countIntTbl <- function(){
+    integration<-connectDB(pg_int_db)
+    count_integration <- length(dbListTables(integration))-3
+    disconnectDB("integration", integration)
+
+    return(count_integration)
+  }
   
   getApprovalTbl <- function(){
     # return(dbReadTable(DB, c("public", "metadata")))
@@ -107,7 +177,7 @@ server <- function(input, output, session) {
                               approval=getApprovalTbl(),
                               numOfMetadata=countMetadataTbl(),
                               numOfCompilated=countCompTbl(),
-                              # numOfIntegrated=countIntTbl(),
+                              numOfIntegrated=countIntTbl(),
                               recentMetadata=data.frame(),
                               selectedRawdata="",
                               recentValidityData=data.frame(),
@@ -133,8 +203,8 @@ server <- function(input, output, session) {
   output$countData <- renderUI({
     tags$ul(class="list-group",
       tags$li(class="list-group-item", span(class="badge", listOfTbl$numOfMetadata$count), "Data Input"),
-      tags$li(class="list-group-item", span(class="badge", listOfTbl$numOfCompilated), "Compilated Data")
-      # tags$li(class="list-group-item", span(class="badge", listOfTbl$numOfIntegrated), "Integrated Data")
+      tags$li(class="list-group-item", span(class="badge", listOfTbl$numOfCompilated), "Compilated Data"),
+      tags$li(class="list-group-item", span(class="badge", listOfTbl$numOfIntegrated), "Integrated Data")
     )
   })
   
@@ -263,31 +333,37 @@ server <- function(input, output, session) {
   ###*DATA Page####
   output$app_data <- renderDataTable({
     approval <- listOfTbl$approval
+    
+    if(nrow(approval) == 0)
+      approval <- data.frame(EMPTY="No data available in table")
     # action_approve <- shinyInput(actionButton, nrow(approval), 'approve_', label="Approve", onclick='Shiny.onInputChange(\"approve_button\", this.id)')
     # action_reject <- shinyInput(actionButton, nrow(approval), 'reject_', label="Reject", onclick='Shiny.onInputChange(\"reject_button\", this.id)')
     # approval <- cbind(approval, action_approve, action_reject)
     
     # approval$URL <- paste0('<u>Edit Attribute Data</u>')
-    datatable(approval, selection="none", class = 'cell-border strip hover', escape=F) %>% formatStyle(1, cursor = 'pointer')
+    datatable(approval, selection="none", class = 'cell-border strip hover', escape=F, rownames = F) %>% formatStyle(1, cursor = 'pointer')
   })
   
   output$comp_data <- renderDataTable({
     metadata <- listOfTbl$metadata
     
+    if(nrow(metadata) == 0)
+      approval <- data.frame(EMPTY="No data available in table")
     # metadata$URL <- paste0('<u>Edit Attribute Data</u>')
     datatable(metadata, selection="none", class = 'cell-border strip hover', escape=F) %>% formatStyle(1, cursor = 'pointer')
   })
   
   observeEvent(input$approve_button, {
     selected_row <- as.numeric(strsplit(input$approve_button, "_")[[1]][2])
+    print(input$approve_button)
     
     approval <- listOfTbl$approval
     selected_approval <- approval[selected_row, ]
     
     metadata<-connectDB(pg_md_db)
     
-    updateTableQuery <- paste0("UPDATE approval SET status = 'Approve', approval= '<button id=\"approve_", selected_approval$id, "\" type=\"button\" class=\"btn btn-default action-button\" onclick=\"Shiny.onInputChange(&quot;approve_button&quot;, this.id)\" disabled>Approve</button>', rejection= '<button id=\"reject_", selected_approval$id, "\" type=\"button\" class=\"btn btn-default action-button\" onclick=\"Shiny.onInputChange(&quot;reject_button&quot;, this.id)\" disabled>Reject</button>' WHERE unique_id='", selected_approval$unique_id, "' AND file_name='", selected_approval$file_name, "' AND individual_name='", selected_approval$individual_name, "';")
-    dbSendQuery(metadata, updateTableQuery)
+    updateAppQuery <- paste0("UPDATE approval SET status = 'Approve', approval= '<button id=\"approve_", selected_approval$id, "\" type=\"button\" class=\"btn btn-default action-button\" onclick=\"Shiny.onInputChange(&quot;approve_button&quot;, this.id)\" disabled>Approve</button>', rejection= '<button id=\"reject_", selected_approval$id, "\" type=\"button\" class=\"btn btn-default action-button\" onclick=\"Shiny.onInputChange(&quot;reject_button&quot;, this.id)\" disabled>Reject</button>' WHERE id=", selected_approval$id, ";")
+    dbSendQuery(metadata, updateAppQuery)
     
     updateTableQuery <- paste0("UPDATE metadata SET approval = 'Approve' WHERE id_metadata=", selected_approval$id, ";")
     dbSendQuery(metadata, updateTableQuery)
@@ -300,20 +376,26 @@ server <- function(input, output, session) {
   
   observeEvent(input$reject_button, {
     selected_row <- as.numeric(strsplit(input$reject_button, "_")[[1]][2])
+    print(input$reject_button)
     
     approval <- listOfTbl$approval
     selected_approval <- approval[selected_row, ]
     
     metadata<-connectDB(pg_md_db)
     
-    updateTableQuery <- paste0("UPDATE approval SET status = 'Reject', approval= '<button id=\"approve_", selected_approval$id, "\" type=\"button\" class=\"btn btn-default action-button\" onclick=\"Shiny.onInputChange(&quot;approve_button&quot;, this.id)\" disabled>Approve</button>', rejection= '<button id=\"reject_", selected_approval$id, "\" type=\"button\" class=\"btn btn-default action-button\" onclick=\"Shiny.onInputChange(&quot;reject_button&quot;, this.id)\" disabled>Reject</button>' WHERE unique_id='", selected_approval$unique_id, "' AND file_name='", selected_approval$file_name, "' AND individual_name='", selected_approval$individual_name, "';")
-    dbSendQuery(metadata, updateTableQuery)
+    updateAppQuery <- paste0("UPDATE approval SET status = 'Reject', approval= '<button id=\"approve_", selected_approval$id, "\" type=\"button\" class=\"btn btn-default action-button\" onclick=\"Shiny.onInputChange(&quot;approve_button&quot;, this.id)\" disabled>Approve</button>', rejection= '<button id=\"reject_", selected_approval$id, "\" type=\"button\" class=\"btn btn-default action-button\" onclick=\"Shiny.onInputChange(&quot;reject_button&quot;, this.id)\" disabled>Reject</button>' WHERE id=", selected_approval$id, ";")
+    dbSendQuery(metadata, updateAppQuery)
     
     updateTableQuery <- paste0("UPDATE metadata SET approval = 'Reject' WHERE id_metadata=", selected_approval$id, ";")
     dbSendQuery(metadata, updateTableQuery)
     
     disconnectDB("metadata", metadata)
     
+    listOfTbl$approval <- getApprovalTbl()
+    listOfTbl$metadata <- getMetadataTbl()
+  })
+  
+  observeEvent(input$refreshButton, {
     listOfTbl$approval <- getApprovalTbl()
     listOfTbl$metadata <- getMetadataTbl()
   })
