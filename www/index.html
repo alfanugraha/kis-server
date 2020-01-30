@@ -8,7 +8,7 @@
   <meta content="" name="description">
  
   
-  <!-- { headContent() } Favicons -->
+  {{ headContent() }}
   <link href="img/kisicon.png" rel="icon">
   <link href="img/kisicon.png" rel="kisicon-icon">
 
@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Montserrat:300,400,500,700" rel="stylesheet">
 
   <!-- Bootstrap CSS File -->
-  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet"> 
 
   <!-- Libraries CSS Files -->
   <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
@@ -65,7 +65,7 @@
             </ul>
           </li>-->
 		  <li><a href="#data">Data</a></li>
-          <li><a href="#" id="page_login" class="action-button shiny-bound-input" value="gotologin">Login</a></li>
+          <!--<li><a href="#" id="page_login" class="action-button shiny-bound-input" value="gotologin">Login</a></li>-->
         </ul>
       </nav><!-- #nav-menu-container -->
     </div>
@@ -88,20 +88,32 @@
               <div class="carousel-content">
                 <h2>KIS Satu Peta</h2>
                 <p>Kompilasi, Integrasi, Sinkronisasi Untuk Perencanaan Pembangunan Berkelanjutan.</p>
-                <a href="#featured-services" class="btn-get-started scrollto">Get Started</a>
+				<div class="relative align-self-center">
+					<form action="#" class="rounded pb_form_v1">
+						<div class="form-group" style="margin-bottom: 0.8em">
+							<input id="userName" type="text" class="shiny-bound-input form-control pb_height-50 reverse" placeholder="Username">
+						</div>
+						<div class="form-group" style="margin-bottom: 1.5em">
+							<input id="passwd" type="password" class="shiny-bound-input form-control pb_height-50 reverse" placeholder="Password">
+						</div>
+						<div class="form-group" style="margin-bottom: 1.5em">
+							<button id="login" type="button" class="action-button shiny-bound-input btn btn-primary btn-lg btn-block pb_btn-pill btn-shadow-blue">Masuk</button>
+						</div>
+					</form>
+				</div>
               </div>
             </div>
           </div>
 
-          <div class="carousel-item">
+          <!-- <div class="carousel-item">
             <div class="carousel-background"><img src="img/intro-carousel/oki2.jpg" alt=""></div>
             <div class="carousel-container">
               <div class="carousel-content">
                 <h2>Kompilasi</h2>
                 <p>Proses pengumpulan Informasi Geospasial (IG) Tematik yang dimiliki oleh Kementerian/Lembaga saat ini</p>
                 <a href="#featured-services" class="btn-get-started scrollto">Get Started</a>
-              </div>
             </div>
+              </div>
           </div>
 
           <div class="carousel-item">
@@ -133,7 +145,7 @@
                 <h2>DPSIR</h2>
               </div>
             </div>
-          </div>
+          </div> -->
 
         </div>
 
@@ -537,6 +549,8 @@
         <div class="owl-carousel clients-carousel">
           <img src="img/clients/papua.png" alt="" style="width: 90px;">
           <img src="img/clients/jayapura.png" alt="" style="width: 80px;">
+		  <img src="img/clients/oki.png" alt="" style="width: 80px;">
+		  <img src="img/clients/sumsel.png" alt="" style="width: 80px;">
           <img src="img/clients/icraf.jpg" alt="" style="width: 140px;">
           <img src="img/clients/wri.png" alt="" style="width: 140px;">
         </div>
@@ -830,8 +844,8 @@
 
   <!-- JavaScript Libraries -->
   <script src="lib/jquery/jquery.min.js"></script>
-  <script src="lib/jquery/jquery-migrate.min.js"></script>
-  <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!--<script src="lib/jquery/jquery-migrate.min.js"></script>
+  <!--<script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>-->
   <script src="lib/easing/easing.min.js"></script>
   <script src="lib/superfish/hoverIntent.js"></script>
   <script src="lib/superfish/superfish.min.js"></script>
@@ -840,10 +854,10 @@
   <script src="lib/counterup/counterup.min.js"></script>
   <script src="lib/owlcarousel/owl.carousel.min.js"></script>
   <script src="lib/isotope/isotope.pkgd.min.js"></script>
-  <script src="lib/lightbox/js/lightbox.min.js"></script>
+  <!--<script src="lib/lightbox/js/lightbox.min.js"></script>-->
   <script src="lib/touchSwipe/jquery.touchSwipe.min.js"></script>
   <!-- Contact Form JavaScript File -->
-  <script src="contactform/contactform.js"></script>
+  <!--<script src="contactform/contactform.js"></script>-->
 
   <!-- Template Main Javascript File -->
   <script src="js/main.js"></script>

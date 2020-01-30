@@ -35,10 +35,11 @@ shinyloginpage <- navbarPage(title = appsTitle, theme = shinytheme("flatly"), id
     # hr(),
     jumbotron("KIS SATU PETA", "Mempermudah proses penatagunaan lahan. Menghindari konflik penatagunaan lahan. Mempercepat proses perizinan penatagunaan lahan.", button=FALSE),
     div(id = "loginpage", style = "width: 500px; max-width: 100%; margin: 0 auto; padding: 20px;",
-    textInput("userName", placeholder="Username", label = tagList(icon("user"), "Username")),
-    passwordInput("passwd", placeholder="Password", label = tagList(icon("unlock-alt"), "Password")),
-    # actionLink("tes", label = "tes", value="tes"),
-    actionButton("login", "Masuk"))
+      textInput("userName", placeholder="Username", label = tagList(icon("user"), "Username")),
+      passwordInput("passwd", placeholder="Password", label = tagList(icon("unlock-alt"), "Password")),
+      # actionLink("tes", label = "tes", value="tes"),
+      actionButton("login", "Masuk")
+    )
   )
 )
 
@@ -58,7 +59,7 @@ server <- function(input, output, session) {
   observeEvent(input$page_login, {
     if(input$page_login=="gotologin"){
       USER$home = "gohome"
-      print(input$page_login)
+      # print(input$page_login)
     } else {
       return
     }
@@ -96,6 +97,7 @@ server <- function(input, output, session) {
     #   homepage
     } else {
       shinyloginpage
+      # homepage
     }
   })
   

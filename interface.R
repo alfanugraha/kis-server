@@ -12,8 +12,7 @@ navbarPage(title = appsTitle, theme = shinytheme("flatly"), id="compilationApps"
     fluidRow(
       column(6, panel_div("success", panel_title="Last Login", Sys.time())),
       column(6, panel_div("info", panel_title="Last Activity", Sys.Date()))
-    ),
-    uiOutput("logoutbtn")
+    )
   ),
   ###Compilation####
   navbarMenu("Kompilasi",
@@ -31,4 +30,5 @@ navbarPage(title = appsTitle, theme = shinytheme("flatly"), id="compilationApps"
   ###About####
   tabPanel("Tentang"
   )
+  # tags$li(a("Keluar", href="javascript:window.location.reload(true)"))
 )
